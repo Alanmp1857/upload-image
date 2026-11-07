@@ -16,6 +16,8 @@ npm start
 
 Open [http://localhost:8000](http://localhost:8000).
 
+<img width="1637" height="871" alt="image" src="https://github.com/user-attachments/assets/fa6ee1ac-c95c-4d07-a34a-e98e87b79bd3" />
+
 ## Upload limits and validation
 
 - Accepts JPEG, PNG, and WebP images only.
