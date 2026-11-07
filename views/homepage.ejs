@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Uploads</title>
+    <style>
+        :root {
+            --bg-1: #0f172a;
+            --bg-2: #111827;
+            --panel: rgba(15, 23, 42, 0.75);
+            --panel-border: rgba(148, 163, 184, 0.2);
+            --primary: #8b5cf6;
+            --primary-strong: #7c3aed;
+            --accent: #22d3ee;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --shadow: 0 25px 50px rgba(15, 23, 42, 0.45);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            font-family: Inter, "Segoe UI", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(139, 92, 246, 0.35), transparent 32%),
+                radial-gradient(circle at bottom right, rgba(34, 211, 238, 0.2), transparent 30%),
+                linear-gradient(135deg, var(--bg-1), var(--bg-2));
+        }
+
+        .upload-card {
+            width: min(92vw, 460px);
+            padding: 2rem;
+            border-radius: 24px;
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(16px);
+            box-shadow: var(--shadow);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.42rem 0.8rem;
+            border-radius: 999px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #ddd6fe;
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(168, 85, 247, 0.35);
+        }
+
+        .badge::before {
+            content: "";
+            width: 0.55rem;
+            height: 0.55rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            box-shadow: 0 0 12px rgba(34, 211, 238, 0.9);
+        }
+
+        h1 {
+            margin: 1.2rem 0 0.5rem;
+            font-size: clamp(2rem, 5vw, 2.6rem);
+            line-height: 1.1;
+        }
+
+        p {
+            margin: 0 0 1.6rem;
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        form {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .file-input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px;
+            padding: 1.2rem;
+            border: 1.5px dashed rgba(148, 163, 184, 0.4);
+            border-radius: 18px;
+            background: rgba(15, 23, 42, 0.45);
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .file-input-wrap:hover {
+            border-color: rgba(34, 211, 238, 0.75);
+            transform: translateY(-1px);
+        }
+
+        .file-input-wrap:focus-within {
+            outline: 2px solid var(--accent);
+            outline-offset: 3px;
+        }
+
+        .file-input-wrap input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-prompt {
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 0.8rem;
+            display: grid;
+            place-items: center;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.22), rgba(34, 211, 238, 0.18));
+            font-size: 2rem;
+        }
+
+        .upload-label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .upload-hint {
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        .preview-image {
+            display: none;
+            max-width: 100%;
+            max-height: 220px;
+            border-radius: 12px;
+            object-fit: contain;
+        }
+
+        .message {
+            margin: 0;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        .error-message {
+            color: #fecaca;
+            background: rgba(220, 38, 38, 0.14);
+            border: 1px solid rgba(248, 113, 113, 0.35);
+        }
+
+        .security-note {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
+        button {
+            border: none;
+            border-radius: 14px;
+            padding: 0.95rem 1.2rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            box-shadow: 0 12px 24px rgba(124, 58, 237, 0.35);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 16px 30px rgba(34, 211, 238, 0.22);
+        }
+
+        .uploaded-result {
+            display: grid;
+            gap: 0.8rem;
+            margin-top: 1.2rem;
+        }
+
+        .uploaded-result img {
+            display: none;
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 14px;
+            background: rgba(15, 23, 42, 0.6);
+        }
+
+        .uploaded-result img.is-visible {
+            display: block;
+        }
+
+        .uploaded-result button {
+            background: rgba(148, 163, 184, 0.16);
+            border: 1px solid var(--panel-border);
+            box-shadow: none;
+        }
+
+        @media (max-width: 480px) {
+            .upload-card {
+                padding: 1.4rem;
+            }
+
+            .file-input-wrap {
+                min-height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="upload-card">
+        <span class="badge">Smart Upload</span>
+        <h1>Upload your image</h1>
+        <p>Share a file in seconds and keep your workflow moving.</p>
+
+        <% if (errorMessage) { %>
+            <p class="message error-message" role="alert"><%= errorMessage %></p>
+        <% } %>
+
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+            <label class="file-input-wrap" for="fileInput">
+                <input id="fileInput" type="file" name="image" accept="image/jpeg,image/png,image/webp" aria-describedby="uploadHint" required>
+                <div class="upload-prompt">
+                    <div class="upload-icon" aria-hidden="true">⬆</div>
+                    <img id="localPreview" class="preview-image" alt="Selected image preview">
+                    <span id="uploadLabel" class="upload-label">Choose a file</span>
+                    <span id="uploadHint" class="upload-hint">PNG, JPG, or WebP · Max 5 MB</span>
+                </div>
+            </label>
+            <button type="submit">Upload image</button>
+            <p class="security-note">Images are validated and re-encoded before storage. Antivirus scanning is not enabled.</p>
+        </form>
+
+        <% if (uploadedImage) { %>
+            <section class="uploaded-result" aria-label="Uploaded image">
+                <button id="showUploadedImage" type="button" aria-expanded="false">Show uploaded image</button>
+                <img id="uploadedImage" src="<%= uploadedImage %>" alt="Uploaded image">
+            </section>
+        <% } %>
+    </main>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const localPreview = document.getElementById('localPreview');
+        const uploadLabel = document.getElementById('uploadLabel');
+        const uploadIcon = document.querySelector('.upload-icon');
+        let previewUrl;
+
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files[0];
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+                previewUrl = null;
+            }
+
+            if (!file) {
+                localPreview.style.display = 'none';
+                uploadIcon.style.display = 'grid';
+                uploadLabel.textContent = 'Choose a file';
+                return;
+            }
+
+            previewUrl = URL.createObjectURL(file);
+            localPreview.src = previewUrl;
+            localPreview.style.display = 'block';
+            uploadIcon.style.display = 'none';
+            uploadLabel.textContent = file.name;
+        });
+
+        const showUploadedImage = document.getElementById('showUploadedImage');
+        if (showUploadedImage) {
+            showUploadedImage.addEventListener('click', () => {
+                const uploadedImage = document.getElementById('uploadedImage');
+                const isVisible = uploadedImage.classList.toggle('is-visible');
+                showUploadedImage.textContent = isVisible ? 'Hide uploaded image' : 'Show uploaded image';
+                showUploadedImage.setAttribute('aria-expanded', String(isVisible));
+            });
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+        });
+    </script>
+</body>
+</html>
